@@ -12,20 +12,20 @@
 
 #include "../minishell.h"
 
-static int	is_only_space(const char *str)
+static int	is_only_space(const char *str) // gönderilen stringdeki karakterlerin tamamı space vb mi yoksa farklı herhangi bir karakter var mı bunun tespitini yapan fonksiyon
 {
-	while (*str != '\0')
+	while (*str != '\0') // gönderilen stringin son karakterine kadar tek tek ilerle
 	{
-		if (!isspace(*str))
-			return (0);
+		if (!isspace(*str)) // karakter space değilse 
+			return (0); // 0 döndür
 		str++;
 	}
-	return (1);
+	return (1); // eğer gönderilen stringde ki bütün karakterler space ve benzeri karakterler ise 1 döndürür
 }
 
 void	lexer(t_prompt *prompt)
 {
-	prompt->input_string = readline("minishell> ");
+	prompt->input_string = readline("minishell$ ");
 	collect_grbg(prompt, prompt->input_string);
 	signals_non_interactive();
 	add_history(prompt->input_string);

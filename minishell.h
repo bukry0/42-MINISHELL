@@ -72,7 +72,7 @@ void		free_all(t_prompt *prompt);
 void		exit_ms(int g_exitstatus, t_prompt *prompt);
 
 // main
-void		launch_minishell(t_prompt *prompt);
+void		launch_minishell(t_prompt *prompt); // shell programımızın ana çalışma döngüsünü  içeren fonksiyon
 void		pipe_infile_outfile(t_node *cmd_lst);
 
 // init
@@ -104,7 +104,7 @@ void		handle_redir(t_prompt *ptr, int type);
 int			open_file(char **cmds, int i, int *save_fd, int io_flags[2]);
 int			get_flags(int type, int file_access_type);
 int			open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type);
-int			syntax_error(t_prompt *prompt, char *token); // söz dizimi hatalarını handle edip yeni komut satırına geçiren fonksiyon
+int			syntax_error(t_prompt *prompt, char *token); // söz dizimi hatalarını handle edip yeni komut satırını başlatan fonksiyon
 
 // here_doc
 void		launch_heredoc(t_prompt *prompt, t_cmddat *cmd, int i);
@@ -155,10 +155,10 @@ int			is_executable(t_cmddat *cmd_data);
 
 // signal_handler
 void		sigint_handler(int signum);
-void		handle_sig_quit(int n);
-void		signals_interactive(void);
-void		handle_sig_int(int n);
-void		signals_non_interactive(void);
+void		handle_sig_quit(int n); // bir komutun çalışması esnasında yarıda kapatmak için sinyal gönderilirse döngüleri durdurup yeni satır başlatacak fonksiyon
+void		signals_interactive(void); // komut satırında henüz komut girilmemişken CTRL+C ye basıldığında shell çökmesin diye kendi handle ettiğimiz fonksiyon
+void		handle_sig_int(int n); // zaten yeni bir komut satırındayken yani fork() exec() gibi işlemler aktif değilken gönderilen CTRL+C sinyalini ele alan fonksiyon
+void		signals_non_interactive(void); // çalışan bir komut varken yani aktif bir fork() ve execve() varken girilen sinyallerin handle edilmesini sağlayan fonksiyon
 
 // garbage_collector
 void		*get_grbg(t_prompt *prompt, size_t nmemb, size_t size);

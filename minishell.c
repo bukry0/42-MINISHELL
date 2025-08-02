@@ -14,20 +14,20 @@
 
 int		g_exitstatus = 0; // program boyunca çağırıldığı her file da kullanılacak olan global değişkenin tanımı yapılıyor
 
-void	launch_minishell(t_prompt *prompt)
+void	launch_minishell(t_prompt *prompt) // shell programımızın ana çalışma döngüsünü  içeren fonksiyon
 {
-	while (1)
+	while (1) // her şartta döngü başlatılır ve exit fonksiyonuna girilmediği sürece kullanıcıdan komut almaya devam eder
 	{
-		signals_interactive();
-		prompt->stop = 0;
-		lexer(prompt);
-		if (prompt->stop == 0)
-			parser(prompt, 0, 0);
-            if (cstm_lstsize(prompt->cmd_list) > 1 && prompt->stop == 0)
-			pipe_infile_outfile(prompt->cmd_list);
-		if (!prompt->stop)
-        execute_cmds(prompt);
-		prompt->cmd_list = NULL;
+		signals_interactive(); // sinyalleri handle ettiğimiz fonksiyon, CTRL+C,D gibi
+		prompt->stop = 0; // döngüleri durdurduğumuz flagi sıfırlıyoruz örneğin bir önceki komut satırından çıkılırken değeri 1 yapılmıştı
+		lexer(prompt); // girilen bütün komutların parçalanmasını (tokenize) sağlayan fonksiyon 
+		if (prompt->stop == 0) // eğer döngüyü durdurma flagi hala 0 ise yani lexer komutları bölme işleminde bir sorun çıkmadıysa
+			parser(prompt, 0, 0); // bölünmüş haldeki komutlar yani tokenler analiz edilir hangi işlem yapılması gerektiğine karar verebilmek için
+        if (cstm_lstsize(prompt->cmd_list) > 1 && prompt->stop == 0) // eğer birden fazla komut varsa |, <<, > kullanılarak birleştirilmiş gibi
+			pipe_infile_outfile(prompt->cmd_list); // bu birleştirme işlemlerinden hangisinin kullanıldığını analiz edip yapılacak işlemi belirlememizi sağlayan fonksiyon çağırılır
+		if (!prompt->stop) // eğer döngü durdurma flagi bu işlemlerden sonra da hala 0 ise yani girilen komutlarda mantık hataları da yok ise
+        	execute_cmds(prompt); // artık komutları çalıştırma işlemlerinin yapıldığı fonksiyon çalıştırılır
+		prompt->cmd_list = NULL; // yeni satıra geçilmeden önce son olarak önceki satırdaki komut listemiz temizlenir
 	}
 }
 
