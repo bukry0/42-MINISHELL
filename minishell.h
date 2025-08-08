@@ -81,10 +81,10 @@ int			init_env(t_prompt *prompt, char **env); // program başlatılırken sistem
 t_cmddat	*init_struct_cmd(t_prompt *prompt);
 
 // lexer
-void		lexer(t_prompt *prompt);
+void		lexer(t_prompt *prompt); // kullanıcının girdiği komut satırının alınıp analiz edildiği ve bölündüğü fonksiyon
 char		**split_input(char *str, t_prompt *prompt);
 char		**ft_split(char const *s, char c);
-char		*handle_spaces(t_prompt *prompt, char *str, size_t i, int j);
+char		*handle_spaces(t_prompt *prompt, char *str, size_t i, int j); // space düzenlenmesi ihtimali olan karakterleri space düzenlemesi yapan fonksiyonlara aktaran fonksiyon
 char		**ft_create_substrs(t_prompt *p, char **aux, char const *s, char *set);
 
 // quotes_utils
