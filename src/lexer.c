@@ -42,9 +42,9 @@ void	lexer(t_prompt *prompt) // kullanıcının girdiği komut satırının alı
 		return ; // fonksiyondan çıkılır yani sadece şuan bulunduğumuz satır sonlandırılıp yeni satıra geçilir
 	}
 	prompt->input_string = handle_spaces(prompt, prompt->input_string, 0, 0); // kullanıcının girdiği komut satırındakieksik olan space karakterlerini ekler parçalarken sistematik ilerleyebilmek için
-	prompt->commands = split_input(prompt->input_string, prompt); // komutu |, << veya benzeri ayraçlara böler ve sırasıyla bir linked komut listesine yerleştirir
+	prompt->commands = split_input(prompt->input_string, prompt); // girilen komutu space karakterlerine ve tırnaklara uygun bir şekilde böler, normalde split sadece space lerden böler bu da normalde bölmemesi gerken tırnak içindeki metinleri de parçalar fakat bu fonksiyon shell komutlarına uygun bölmeler yapacak
 	if (prompt->commands == NULL) // eğer komutlar doğru bir şekilde oluşturulamadıysa 
-		prompt->stop = 1; // stop flagi 1 yapılır bunun sayesinde de işlem yapılmaz
+		prompt->stop = 1; // stop flagi 1 yapılır bunun sayesinde de program devamında işlem yapılmaz
 	if (prompt->stop != 1) // eğer stop flagi 1 değilse yani fark edilen bir hatadan dolayı durdurma işlemi true olarak değiştirilmediyse
 		prompt->commands = expander(prompt, prompt->commands, prompt->envp); // eğer komutları doğru bir şekilde bölüştürebildiysek prompt içerisindeki environment değişkenlerini olması gerektiği gibi dolduracak fonksiyon çağırılır
 }

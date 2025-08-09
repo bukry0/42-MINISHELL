@@ -82,10 +82,10 @@ t_cmddat	*init_struct_cmd(t_prompt *prompt);
 
 // lexer
 void		lexer(t_prompt *prompt); // kullanıcının girdiği komut satırının alınıp analiz edildiği ve bölündüğü fonksiyon
-char		**split_input(char *str, t_prompt *prompt);
+char		**split_input(char *str, t_prompt *prompt); // komut satırında girilen stringi spacelere ve tırnaklara göre anlamlı parçalara ayıran foksiyon
 char		**ft_split(char const *s, char c);
 char		*handle_spaces(t_prompt *prompt, char *str, size_t i, int j); // space düzenlenmesi ihtimali olan karakterleri space düzenlemesi yapan fonksiyonlara aktaran fonksiyon
-char		**ft_create_substrs(t_prompt *p, char **aux, char const *s, char *set);
+char		**ft_create_substrs(t_prompt *p, char **aux, char const *s, char *set); // set karakterine göre ve tırnaklara göre girilen komut satırını bölen fonksiyon
 
 // quotes_utils
 void		get_rid_quotes(t_prompt *prompt);

@@ -12,6 +12,102 @@
 
 #include "../minishell.h"
 
+
+/*
+env nedir?
+env kelimesi, “environment variables” (çevre değişkenleri) anlamına geliyor. Çevre değişkenleri, işletim sisteminin ve programların
+birbirleriyle bilgi paylaşmasını sağlayan anahtar = değer çiftleridir. Örneğin;
+
+PATH=/usr/local/bin:/usr/bin:/bin
+HOME=/home/kullanici
+USER=kullanici
+SHELL=/bin/bash
+
+Burada;
+PATH: Program çalıştırma yollarını tutar. Terminalde ls yazdığında, ls komutunun hangi klasörde olduğunu bulmak için PATH kullanılır.
+HOME: Kullanıcının ana dizini.
+USER: Kullanıcı adı.
+SHELL: Varsayılan kabuk.
+
+Sen programını main(int argc, char **argv, char **env) şeklinde yazdığında 3. parametre olan env, işletim sisteminin sana bu değişkenleri
+string array olarak veriyor. Yani env aslında şuna benziyor;
+env[0] = "PATH=/usr/local/bin:/usr/bin:/bin";
+env[1] = "HOME=/home/kullanici";
+env[2] = "USER=kullanici";
+env[3] = NULL; // Bittiğini gösterir
+
+$ işaretleri ne işe yarıyor?
+Shell dünyasında $ değişken okuma operatörüdür.
+$HOME → HOME değişkeninin değerini getirir.
+$USER → kullanıcı adını getirir.
+$PATH → PATH değişkenini getirir.
+$? → Son çalıştırılan komutun çıkış kodunu (exit status) verir.
+Örneğin, bash;
+echo $HOME
+# çıktı: /home/kullanici
+
+echo $USER
+# çıktı: kullanici
+
+ls asdf
+# ls: cannot access 'asdf': No such file or directory
+echo $?
+# çıktı: 2   (hata kodu)
+
+Shell neden $ gördüğünde değiştirme yapar?
+Buna variable expansion denir (değişken genişletme).
+Shell, $ ile başlayan ifadeleri ilgili değişkenin değerine çevirir. Örneğin, Bash;
+
+echo "Merhaba $USER, evin: $HOME"
+Shell bunu çalıştırmadan önce şu hale getirir:
+
+echo "Merhaba kullanici, evin: /home/kullanici"
+Sonra echo komutu bu metni ekrana basar.
+
+Senin bu kodlarda yaptığın şey ne?
+Sen kendi yazdığın mini shell’de aynı mekanizmayı implement ediyorsun. Yani:
+
+Kullanıcı bir komut yazıyor:
+
+echo Merhaba $USER
+Sen bu stringi okuyorsun.
+
+String içinde $ var mı diye bakıyorsun.
+Eğer $ varsa, $'den sonra gelen ismin uzunluğunu buluyorsun (get_len_var ile).
+Bu ismi alıp, envp dizisinde karşılığını buluyorsun.
+Bulduğun değeri stringin içine yerleştiriyorsun (create_sub_var ile).
+Özel bir durum: $? → bu global değişken g_exitstatus ile tutuluyor ve handle_g_exitstatus ile ekleniyor.
+
+Neden "parçalamak" zorundayız?
+Çünkü $ sadece değişkenin adını temsil ediyor, değerini değil, örneğin;
+
+"echo $USER" → senin programın önce $USER'i USER değişkeninin değeri ile değiştirmeli.
+Eğer değiştirmezsen, execve fonksiyonu $USER diye bir dosya arar, bulamaz → hata olur.
+Yani expander fonksiyonları, komut çalışmadan önce $'li kısımları gerçek değerleriyle değiştirip, komutun doğru çalışmasını sağlıyor.
+
+Basit örnek üzerinden işleyiş:
+Diyelim env şu şekilde:
+
+env[0] = "USER=ahmet";
+env[1] = "HOME=/home/ahmet";
+env[2] = NULL;
+
+Kullanıcı şunu yazdı:
+echo $HOME/Documents
+
+Adımlar:
+Program $ işaretini gördü → bunun ardından HOME kelimesi var.
+HOME'un değerini env içinde buldu → /home/ahmet.
+$HOME/Documents → /home/ahmet/Documents oldu.
+
+Son komut:
+echo /home/ahmet/Documents
+olarak execve'ye gidecek.
+
+*/
+
+
+
 /*
   Expands environment variables in the array of strings `str` using
   the environment variables `ev`.
