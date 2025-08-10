@@ -197,14 +197,14 @@ char		*get_path(char *cmd, char **ev, size_t i);
 void		free_split(char **strs);
 
 // expander
-char		**expander(t_prompt *prompt, char **str, char **ev);
-char		*handle_g_exitstatus(t_prompt *prompt, int i, char *str, char *sub_str);
+char		**expander(t_prompt *prompt, char **str, char **ev); // str içindeki anlamlı parçalara bölünmüş kodların içinde expanded değişkenlerin ($ ile başlayan bash değişkenler) sistemdeki değerlerini yerine yazıp güncelleyen fonksiyon
+char		*handle_g_exitstatus(t_prompt *prompt, int i, char *str, char *sub_str); // eğer komut satırında $? değişkeni tespit edilirse onun alması gereken global g_exitstatus değerini yerine yazıp gönderen fonksiyon
 
 // expand_var_utils
-char		*create_sub_var(char *str, size_t i, char **ev, ssize_t len);
-ssize_t		get_len_var(char *str, int i);
-char		*create_sub(char *str, size_t i, char *nb, ssize_t len);
-char		*expand_var(t_prompt *prompt, char *str, char **ev, int i);
-char		*handle_expansion(t_prompt *prompt, char *str, int q[4], char *sub_str);
+char		*create_sub_var(char *str, size_t i, char **ev, ssize_t len); // stringde tespit edilen değişkenin eğer atanmış bir değeri varsa onu yerine koyup stringin geri kalanıyla birleştirip gönderen fonksiyon
+ssize_t		get_len_var(char *str, int i); // verilen str stringinde i. indexten sonrasındaki karakterleri sayan; space, str sonu ya da tırnak görene kadar ve bu boyutu döndüren fonksiyon
+char		*create_sub(char *str, size_t i, char *nb, ssize_t len); // g_exitstatus değerini $? komutu yerine yazan fonksiyon
+char		*expand_var(t_prompt *prompt, char *str, char **ev, int i); // stringin tamamında tespit edilen değişkenleri eğer değeri varsa değeri verilip yoksa eski haliyle aynısının döndürüldüğü fonksiyon
+char		*handle_expansion(t_prompt *prompt, char *str, int q[4], char *sub_str); // $ karakterini bulan ve sonrasında kayda değer bir değişken ismi vs varsa ona değerini aktaracak fonksiyonları çalıştıran ve değerlerin yerine yazıldığı son halini döndüren fonksiyon
 
 #endif

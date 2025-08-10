@@ -65,7 +65,7 @@ echo "Merhaba kullanici, evin: /home/kullanici"
 Sonra echo komutu bu metni ekrana basar.
 
 Senin bu kodlarda yaptığın şey ne?
-Sen kendi yazdığın mini shell’de aynı mekanizmayı implement ediyorsun. Yani:
+Sen kendi yazdığın minishell’de aynı mekanizmayı implement ediyorsun. Yani:
 
 Kullanıcı bir komut yazıyor:
 
@@ -121,33 +121,33 @@ olarak execve'ye gidecek.
     - A new array of strings with expanded environment variables.
 */
 
-char	**expander(t_prompt *prompt, char **str, char **ev)
+char	**expander(t_prompt *prompt, char **str, char **ev) // str içindeki anlamlı parçalara bölünmüş kodların içinde expanded değişkenlerin ($ ile başlayan bash değişkenler) sistemdeki değerlerini yerine yazıp güncelleyen fonksiyon
 {
-	int		i;
-	char	**temp;
+	int		i; // komut stringi içinde gezinmek için index
+	char	**temp; // komut stringinde değiştirilmesi gereken değerler varsa onların son hallerinin aktarılacağı değişken
 
-	temp = get_grbg(prompt, get_len_arr(str) + 1, sizeof(char *));
-	if (!temp)
-		return (NULL);
-	i = 0;
-	while (str[i])
+	temp = get_grbg(prompt, get_len_arr(str) + 1, sizeof(char *)); // temp string dizisi için de daha önce oluşturulan komut dizisi kadar yer ayrılır
+	if (!temp) // eğer yer ayrılırken bir sorun oluştuysa
+		return (NULL); // NULL ile çık
+	i = 0; // indexi sıfırla
+	while (str[i]) // ilk komut parçasından başla sonuna kadar ilerle
 	{
-		temp[i] = expand_var(prompt, str[i], ev, 0);
-		i++;
+		temp[i] = expand_var(prompt, str[i], ev, 0); // gönderilen komut parçasında bir $değişken_adı tipinde ortam değişkeni tespit edilirse onun değerini sistemden alıp yerine yazarak gönderilen kod parçasının güncellenmiş halini gönderen fonksiyon
+		i++; // bir sonraki komut stringine geç
 	}
-	temp[i] = NULL;
-	i = 0;
-	while (temp[i] != NULL)
+	temp[i] = NULL; // son komuttan sonrasına kapanış için NULL koy
+	i = 0; // indexi sıfırla
+	while (temp[i] != NULL) // komut parçalarının sonuna kadar ilerle tekrar
 	{
-		if (ft_strcmp(temp[i], "") == 0)
+		if (ft_strcmp(temp[i], "") == 0) // eğer komut parçalarından boş olan varsa örneğin sistemde karşılığı bulunmayan bir değişken gönderdik ve sonucunda NULL aldık
 		{
-			del_str(temp, i, 1);
-			i = 0;
+			del_str(temp, i, 1); // bu boş komut parçasını aradan çıkart
+			i = 0; // sildikten sonra komut parçası atlamamk adına başa geç
 		}
-		else
-			i++;
+		else // eğer elimdeki komut parçası boş değilse
+			i++; // bir sonraki komuta geç
 	}
-	return (temp);
+	return (temp); // komut parçalarında sistemde değeri olan değişkenler varsa onların değerlerinin yerini yazılıp güncellendiği halini tutan değişkeni döndür
 }
 
 /*
@@ -162,43 +162,43 @@ char	**expander(t_prompt *prompt, char **str, char **ev)
   Returns:
     - Pointer to the modified string with expanded environment variables.
 */
-char	*expand_var(t_prompt *prompt, char *str, char **ev, int i)
+char	*expand_var(t_prompt *prompt, char *str, char **ev, int i) // stringin tamamında tespit edilen değişkenleri eğer değeri varsa değeri verilip yoksa eski haliyle aynısının döndürüldüğü fonksiyon
 {
-	int		q[4];
-	char	*sub_str;
+	int		q[4]; // tırnakları ve bazı indexleri tutacak değişkenler
+	char	*sub_str; // eğer bir stringde $ ile bir değişken değeri istenmişse o değerin değişkene aktarılmış halini tutacak string
 
-	(void)ev;
-	sub_str = NULL;
-	q[0] = 0;
-	q[1] = 0;
-	q[2] = i;
-	q[3] = 0;
-	if (ft_strcmp(str, "$") && ft_strlen(str) == 3)
-		return (str);
-	sub_str = handle_expansion(prompt, str, q, sub_str);
-	if (sub_str)
-		return (sub_str);
-	else
-		return (str);
+	(void)ev; // type casting yapılmış kullanılmayacak ama warning almamak için
+	sub_str = NULL; // başlangıç değeri
+	q[0] = 0; // tek tırnak içinde miyiz takibi, 0-hayır 1-evet
+	q[1] = 0; // çift tırnak içinde miyiz, 0-hayır, 1-evet
+	q[2] = i; // karakter indexi takibi
+	q[3] = 0; // değişken adı uzunluğu vs gibi ekstra şeyler için
+	if (ft_strcmp(str, "$") && ft_strlen(str) == 3) // bunu anlamadım bir özel durumuda değiştirmeyi atlamasını sağlıyor ama ne olduğunu bilmiyorum
+		return (str); // str yi bir değişiklik yapmadan döndür
+	sub_str = handle_expansion(prompt, str, q, sub_str); // str içinde $değişken_adı tespit edersen sistemde bu değişkenin değerini varsa bul yerine yaz ve yeni halini sub_str içine at
+	if (sub_str) // eğer handle_expansion bir $değişken_adı tespit ederse ve bu değişkenin sistemde bir değerini bulup yerine koymuşsa boş bir string göndermemiştir buraya gir
+		return (sub_str); // ve stringin değiştirilmiş değerler yerine yazılmış halini döndür
+	else // eğer str içinde tespit edilen $değişken_adı olursa ve sistemde bir değeri bulunmazsa bu değişkenin o zaman NULL döner sub_str içinde
+		return (str); // bu durumlarda da str nin ilk halini bir değişiklik yapmadan geri döndür
 }
 
-char	*handle_g_exitstatus(t_prompt *prompt, int i, char *str, char *sub_str)
+char	*handle_g_exitstatus(t_prompt *prompt, int i, char *str, char *sub_str) // eğer komut satırında $? değişkeni tespit edilirse onun alması gereken global g_exitstatus değerini yerine yazıp gönderen fonksiyon
 {
-	char	*nb;
-	int		len;
+	char	*nb; // g_exitstatus değişkeninin itoa ile stringe çevirilmiş halini tutan değişken
+	int		len; // global değişkenin değerinin string olarak karakter uzunluğunu tutacak değişken
 
-	len = 0;
-	nb = 0;
-	if (str[i + 1] == '?')
+	len = 0; // başlangıç değeri 0
+	nb = 0; // başlangıç değeri 0
+	if (str[i + 1] == '?') // $ dan sonraki karakter ? ise
 	{
-		nb = grbg_itoa(prompt, g_exitstatus);
-		if (!nb)
-			return (NULL);
-		len = ft_strlen(nb);
-		sub_str = create_sub(str, i, nb, len);
-		collect_grbg(prompt, sub_str);
+		nb = grbg_itoa(prompt, g_exitstatus); // g_exitstatus un değeri yani önceki komut satırının sonlandığındaki çıkış kodunu integerdan stringe çevirip nb ye at
+		if (!nb) // eğer nb boşsa
+			return (NULL); // NULL döndür
+		len = ft_strlen(nb); // sayı stringinin karakter uzunluğınu len e at
+		sub_str = create_sub(str, i, nb, len); // sub_str içine str deki komut stringinde bulduğun $? karakterlerini g_exitstatus değeri ile değiştirilmiş halini at
+		collect_grbg(prompt, sub_str); // güncellenmiş hali olan sub_str için de sistemde yer aç
 	}
-	return (sub_str);
+	return (sub_str); // istenilen çıkış kodunu yerine yazdığın stringi döndür
 }
 
 /*
@@ -206,30 +206,30 @@ q[2] // i
 q[3] //len
 q[4] //
 */
-char	*handle_expansion(t_prompt *prompt, char *str, int q[4], char *sub_str)
+char	*handle_expansion(t_prompt *prompt, char *str, int q[4], char *sub_str) // $ karakterini bulan ve sonrasında kayda değer bir değişken ismi vs varsa ona değerini aktaracak fonksiyonları çalıştıran ve değerlerin yerine yazıldığı son halini döndüren fonksiyon
 {
-	while (str[q[2]])
+	while (str[q[2]]) // str nin sonuna gelene kadar
 	{
-		q[0] = (q[0] + (!q[1] && str[q[2]] == '\'')) % 2;
-		q[1] = (q[1] + (!q[0] && str[q[2]] == '\"')) % 2;
-		if (!q[0] && str[q[2]] == '$' && str[q[2] + 1] && str[q[2] + 1] != ' ')
+		q[0] = (q[0] + (!q[1] && str[q[2]] == '\'')) % 2; // tek tırnak içinde miyim flagi
+		q[1] = (q[1] + (!q[0] && str[q[2]] == '\"')) % 2; // çift tırnak içinde miyim flagi
+		if (!q[0] && str[q[2]] == '$' && str[q[2] + 1] && str[q[2] + 1] != ' ') // tek tırnak içinde değilsem ve str de bulunduğum karakter $ ise ve dolardan sonraki karakter NULL ve space değilse yani $dan sonra değişken adı var mı diye emin olunuyor
 		{
-			if (str[q[2] + 1] == '?')
-				sub_str = handle_g_exitstatus(prompt, q[2], str, sub_str);
-			else
+			if (str[q[2] + 1] == '?') // eğer $? ise
+				sub_str = handle_g_exitstatus(prompt, q[2], str, sub_str); // exit_minishell.c de anlattım, g_exitstatus global değişkenimin değeri $? yerine yazılacak
+			else // eğer $? dışındaki diğer durumlarsa yani $değişken_adı gibi gidip değşken_adı değişkeninin değerini bulup yerine yazacağız
 			{
-				q[3] = get_len_var(str, q[2] + 1);
-				sub_str = create_sub_var(str, q[2], prompt->envp, q[3]);
-				collect_grbg(prompt, sub_str);
-				if (sub_str == NULL)
+				q[3] = get_len_var(str, q[2] + 1); // $ karakteri sonrasını gönderip değişkenin adının kaç karakter olduğu hesaplanır ve q[3] e atılır
+				sub_str = create_sub_var(str, q[2], prompt->envp, q[3]); // sub_str içine eğer $ karakteri sonrasında verilen isimde bir değişken varsa onun değerini stringin içinde yerine koyup son halini yazar
+				collect_grbg(prompt, sub_str); // sub_str için de sistemde yer tahsis edilir
+				if (sub_str == NULL) // eğer yer ayırırken ya da değişken değeri için çalıştırılan fonksiyonda değer bulmada vs bir sorun olduysa
 				{
-					sub_str = "";
-					break ;
+					sub_str = ""; // değişkenin içini boşalt
+					break ; // döngüden çık
 				}
 			}
-			str = sub_str;
+			str = sub_str; // değişkenin değeri verilmiş halini verilmemiş halini tutan değişkene at
 		}
-		q[2]++;
+		q[2]++; // sonraki karaktere geç
 	}
-	return (sub_str);
+	return (sub_str); // stringin değişkenlerinin vs düzenlenmiş son halini döndür
 }

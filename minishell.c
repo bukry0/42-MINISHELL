@@ -18,9 +18,9 @@ void	launch_minishell(t_prompt *prompt) // shell programımızın ana çalışma
 {
 	while (1) // her şartta döngü başlatılır ve exit fonksiyonuna girilmediği sürece kullanıcıdan komut almaya devam eder
 	{
-		signals_interactive(); // sinyalleri handle ettiğimiz fonksiyon, CTRL+C,D gibi
+		signals_interactive(); // sinyalleri handle ettiğimiz fonksiyon, CTRL+C, D gibi
 		prompt->stop = 0; // döngüleri durdurduğumuz flagi sıfırlıyoruz örneğin bir önceki komut satırından çıkılırken değeri 1 yapılmıştı
-		lexer(prompt); // girilen bütün komutların parçalanmasını (tokenize) sağlayan fonksiyon 
+		lexer(prompt); // girilen bütün komutların parçalanmasını (tokenize) sağlayan ve hatta sistemdeki değişkenler çağrıldıysa yerlerine yerleştiren fonksiyon çağırılır
 		if (prompt->stop == 0) // eğer döngüyü durdurma flagi hala 0 ise yani lexer komutları bölme işleminde bir sorun çıkmadıysa
 			parser(prompt, 0, 0); // bölünmüş haldeki komutlar yani tokenler analiz edilir hangi işlem yapılması gerektiğine karar verebilmek için
         if (cstm_lstsize(prompt->cmd_list) > 1 && prompt->stop == 0) // eğer birden fazla komut varsa |, <<, > kullanılarak birleştirilmiş gibi
