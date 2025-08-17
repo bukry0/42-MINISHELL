@@ -83,18 +83,18 @@ int	init_env(t_prompt *prompt, char **env) // program başlatılırken sistemden
     - Pointer to the newly initialized t_cmddat structure.
 */
 
-t_cmddat	*init_struct_cmd(t_prompt *prompt)
+t_cmddat	*init_struct_cmd(t_prompt *prompt) // komut yapısını tutan değişkenlerin başlangıç değerlerini veren fonksiyon
 {
-	t_cmddat	*ptr;
+	t_cmddat	*ptr; // komutları tutması için geçici bir pointer değişkeni
 
-	ptr = get_grbg(prompt, 1, sizeof(t_cmddat));
-	if (!ptr)
-		return (NULL);
-	ptr->full_cmd = NULL;
-	ptr->full_path = NULL;
-	ptr->infile = STDIN_FILENO;
-	ptr->outfile = STDOUT_FILENO;
-	ptr->prompt = prompt;
-	ptr->file_open = 0;
-	return (ptr);
+	ptr = get_grbg(prompt, 1, sizeof(t_cmddat)); // t_cmddat boyutunda alan açılır garbage mantığı ile
+	if (!ptr) // eğer yer ayrılırken bir sorun ile karşılaşıldıysa
+		return (NULL); // fonksiyondan çık
+	ptr->full_cmd = NULL; // komutun tamamını tutan değişkene başlangıç değeri olan NULL koyulur
+	ptr->full_path = NULL; // komutun çalıştırılabilir dosya yolunu tutacak değişken başlangıç değeri NULL sonrasında get_path_cmds fonksiyonuyla doldurulacak ls gibi komutlar çağırılırsa kullanılacak
+	ptr->infile = STDIN_FILENO; // komutun standart inputu yani 0 olarak ayarlanır eğer < gibi komutlar olursa o zaman verilen dosyanın fd değeri ile değiştirilecek
+	ptr->outfile = STDOUT_FILENO; // komutun standart outputu olarak 1 atanır eğer output bir dosyaya yönlendirilirse >> o zaman o dosyanın fd si ile değiştirilir
+	ptr->prompt = prompt; // Bu komutun ait olduğu shell context'ini (t_prompt) gösterir yani environment değişkenlerine, garbage collectora, stop flagine erişim için gerekli
+	ptr->file_open = 0; // eğer bir dosyaya redirection yapıldıysa >, < vs gibi bu flag 1 yapılır ki sonrasında exec aşamaları vs bittiğinde kapatılması gereken bir dosya var mı diye kontrol etmesi kolaylaşsın
+	return (ptr); // komutların başlangıç değerleri ayarlanmış olan pointer döndürülür
 }

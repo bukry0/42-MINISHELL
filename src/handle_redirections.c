@@ -26,33 +26,33 @@
     - 4 if the redirection is an append to outfile ('>>').
     - 0 if no redirection type is detected.
 */
-int	get_type(char *str)
+int	get_type(char *str) // gönderilen komut stringinde redirectionları ve tiplerini tespit eden fonksiyon
 {
-	int	type;
-	int	i;
-	int	q[2];
+	int	type; // redirection ın tipini tutan değişken
+	int	i; // string içinde dolaşmamızı sağlayacak değişken
+	int	q[2]; // tırnak içinde olup olmadığımızı kontrol edecek flagler
 
-	i = -1;
-	type = 0;
-	q[0] = 0;
-	q[1] = 0;
-	while (str[++i])
+	i = -1; // başlangıç değeri ++i kullanılan satırdan itibaren 0 olabilsin diye -1 verilmiş
+	type = 0; // redirection olmadığında kullanılan değer başlangıç olarak verilmiş tespit edildiğinde redirection ın değeri atanacak
+	q[0] = 0; // tek tırnak takibi yapan flagin başlangıç değeri
+	q[1] = 0; // çift tırnak takibi yapan flagin başlangıç değeri
+	while (str[++i]) // komut stringinin sonuna kadar ilerle
 	{
-		q[0] = (q[0] + (!q[1] && str[i] == '\'')) % 2;
-		q[1] = (q[1] + (!q[0] && str[i] == '\"')) % 2;
-		if (!q[0] && !q[1])
+		q[0] = (q[0] + (!q[1] && str[i] == '\'')) % 2; // tek tırnak içinde ise 1 değilse 0 değeri alır
+		q[1] = (q[1] + (!q[0] && str[i] == '\"')) % 2; // çift tırnak içinde ise 1 değilse 0 değeri alır
+		if (!q[0] && !q[1]) // eğer herhangi bir tırnak içerisinde değilsek (tırnak içindeyken redirection anlamı olan karakterleri görsek bile anlamlandırmamalıyız çünkü o sadece bir meti olarak ele alınacak)
 		{
-			if (ft_strlen(str) == 1 && str[i] == '<' )
-				type = 1;
-			if (str[i] == '<' && str[i + 1] && str[i + 1] == '<')
-				type = 2;
-			if (type == 0 && str[i] == '>')
-				type = 3;
-			if (type == 3 && str[i + 1] && str[i + 1] == '>')
-				type = 4;
+			if (ft_strlen(str) == 1 && str[i] == '<' ) // eğer str uzunluğu 1 ise ve karakter de < ise
+				type = 1; // redirection tipini 1 olarak ayarla
+			if (str[i] == '<' && str[i + 1] && str[i + 1] == '<') // eğer str içindeki 2 karakter << ise
+				type = 2; // redirection tipi olarak 2 ayarla
+			if (type == 0 && str[i] == '>') // eğer daha önde redirection tespit edilmediyse ve elindeki karakter > ise
+				type = 3; // redirection tipini 3 olarak ayarla
+			if (type == 3 && str[i + 1] && str[i + 1] == '>') // eğer redirection tipi 3: > tespit edilsiyse ve sonraki karakter de > ise
+				type = 4; // redirection tipini 4 olarak göncelle
 		}
 	}
-	return (type);
+	return (type); // belirlenen redirection tipini tutan değişkeni döndür
 }
 
 /*
@@ -66,32 +66,32 @@ int	get_type(char *str)
 
   Returns: None
 */
-void	handle_redir(t_prompt *ptr, int type)
+void	handle_redir(t_prompt *ptr, int type) // redirection komutlarının tespitini ve sonrasındaki yapılacak işlemleri ayarlayan fonksiyon
 {
-	int			i;
-	t_node		*current_node;
-	t_cmddat	*cmd_data;
+	int			i; // komut zinciri içinde sırayla gezilmesini sağlayacak index
+	t_node		*current_node; // içinde bulunulan komut düğümünü tutacak değişken
+	t_cmddat	*cmd_data; // içinde bulunulan komut düğümünün içeriğini tutan değişken
 
-	current_node = ptr->cmd_list;
-	while (current_node != NULL)
+	current_node = ptr->cmd_list; // komut listesinin ilk düğümünü atıyoruz current_node içine
+	while (current_node != NULL) // son komuta gelene kadar ilerle
 	{
-		cmd_data = current_node->data;
-		if (cmd_data)
+		cmd_data = current_node->data; // cmd_data içine elimizdeki komut düğümünün içeriğini tutan değişkeni koyuyoruz
+		if (cmd_data) // eğer bu değişkenin içeriği boş değilse
 		{
-			i = 0;
-			while (cmd_data->full_cmd[i])
+			i = 0; // index i sıfırla
+			while (cmd_data->full_cmd[i]) // cmd_data içindeki komutun tüm halini tutan değişkenin ilk tokeninden sonuna kadar ilerle
 			{
-				type = get_type(cmd_data->full_cmd[i]);
-				if (type < 5 && type > 0)
+				type = get_type(cmd_data->full_cmd[i]); // ilk komut parçasının tipini belirliyoruz örneğin, 0: redirection komutu yok, 1: <, 2: <<, 3: >, 4: >>
+				if (type < 5 && type > 0) // eğer değişken tipi 1, 2, 3 ya da 4 ise
 				{
-					open_fd_redir(ptr, cmd_data, i, type);
-					cmd_data->full_cmd = del_str(cmd_data->full_cmd, i, 2);
-					i -= 1;
+					open_fd_redir(ptr, cmd_data, i, type); // redirection yapılan dosyanın open fonksiyonu ile açılmasını ve dosyanın kodunun cmd_data içindeki gerekli değişkene infile ya da outfile aktarılmasını sağlar
+					cmd_data->full_cmd = del_str(cmd_data->full_cmd, i, 2); // redirection komutu için gerekli yönlendirmeler yapıldığı için artık redirection ı tutan komut parçası listeden silinebilir
+					i -= 1; // eksilen liste elemanı yerine -1 +1 yapılır ki bir geriye kayan listeden eleman gözden kaçmasın
 				}
-				i++;
+				i++; // sonraki komut dizesine geçmek iin indexi 1 arttır
 			}
 		}
-		current_node = current_node->next;
+		current_node = current_node->next; // bir sonraki düğüme geç
 	}
 }
 
@@ -99,31 +99,29 @@ void	handle_redir(t_prompt *ptr, int type)
 if save_fd > 1 , it means that it's already open and we need to close it
 */
 
-int	open_file(char **cmds, int i, int *save_fd, int io_flags[2] )
+int	open_file(char **cmds, int i, int *save_fd, int io_flags[2] ) // redirection yapılmış bir dosyanın içerisine istenilen işlem için erişilebilmesi için open ile açan fonksiyon
 {
-	if (*save_fd > 1)
+	if (*save_fd > 1) // eğer save_fd değişkeni > 1 ise yani zaten bu dosya çoktan açılmış ise
 	{
-		if (close(*save_fd) == -1)
-			printf("Error while attempting to close a file");
+		if (close(*save_fd) == -1) // dosyayı kapatma fonksiyonunu çağır ve eğer kapatılırken bir hata oluşursa
+			printf("Error while attempting to close a file"); // gerekli hata mesajını yazdır
 	}
-	if (cmds[i + 1])
+	if (cmds[i + 1]) // redirection dan sonraki komut dolu ise
 	{
-		if (io_flags[1] != 0)
-			*save_fd = open(cmds[i + 1], io_flags[0], io_flags[1]);
+		if (io_flags[1] != 0) // eğer output flagi true ie
+			*save_fd = open(cmds[i + 1], io_flags[0], io_flags[1]); // redirection dan sonraki komut (yani file ismi) ve O_RDONLY ve O_WRONLY modları ile file ı aç ve kodunu save_fd içine koy
 		else
-			*save_fd = open(cmds[i + 1], io_flags[0]);
-		if (*save_fd == -1)
+			*save_fd = open(cmds[i + 1], io_flags[0]); // output flagi dolu değilse sadece okuma modunda açılacak yani file ismi ve O_RDONLY ile open fonksiyonu çalıştırılır
+		if (*save_fd == -1) // eğer open fonksiyonu fd değerini -1 döndürürse file lar açılırken hata oluşmuk demektir örneğin verilen isimde bir dosya bulunduğumuz dizinde yoksa vs
 		{
-			g_exitstatus = 1;
-			print_err_msg(cmds[i + 1], "No such file or directory");
-			return (1);
+			g_exitstatus = 1; // global olan sinyal hata durumunu tutan değişkene genel hata anlamı taşıyan 1 değeri atanır
+			print_err_msg(cmds[i + 1], "No such file or directory"); // hatanın mesajı ekrana yazılır
+			return (1); // 1 döndürülür
 		}
 	}
-	else
-	{
-		syntax_error(NULL, cmds[i + 1]);
-	}
-	return (0);
+	else // redirection dan sonraki komut dolu değilse
+		syntax_error(NULL, cmds[i + 1]); // bu bir sözdizim hatasıdır çünkü redirection sonrası bir file name verilmek zorunludur verilmediği için de syntax_error fonksiyonu ile hata fonksiyonu çağırılır
+	return (0); // fonksiyon başarılı biterse 0 döndürülür
 }
 
 /*
@@ -160,7 +158,7 @@ int	get_flags(int type, int file_access_type)
 	return (0);
 }
 
-int	open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type)
+int	open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type) 
 {
 	int	io_flags[2];
 

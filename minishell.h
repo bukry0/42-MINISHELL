@@ -78,7 +78,7 @@ void		pipe_infile_outfile(t_node *cmd_lst);
 // init
 void		init_prompt_struct(t_prompt *prompt, char **envp); // prompt isimli structın içeriğini verilen envp ortam değişkenleriyle başlatır yani şuanda bulunulan dizin bilgileri vs
 int			init_env(t_prompt *prompt, char **env); // program başlatılırken sistemden alınan env değişkenini shell komutlarında kullanabileceğimiz bir versiyona çevirip shell boyunca kullanacağımız prompt->envp değişkenine atar
-t_cmddat	*init_struct_cmd(t_prompt *prompt);
+t_cmddat	*init_struct_cmd(t_prompt *prompt); // komut yapısını tutan değişkenlerin başlangıç değerlerini veren fonksiyon
 
 // lexer
 void		lexer(t_prompt *prompt); // kullanıcının girdiği komut satırının alınıp analiz edildiği ve bölündüğü fonksiyon
@@ -93,15 +93,15 @@ char		*get_trimmed(t_prompt *prompt, char const *s1, int squote, int dquote);
 int			malloc_len(char const *str);
 
 // parser
-void		parser(t_prompt *prompt, int i, int j);
-char		**fill_arr(t_prompt *main_prompt, char **prompt, int i, int len);
+void		parser(t_prompt *prompt, int i, int j); // lexer ile spacelerle bölünüp birleştirilen komut dizisini anlamlı parçalar halinde bölen fonksiyon mesela pipe bulursa pipe öncesi olan komutu ayrı pipe sonrası olan komutu ayrı çalıştırmak gerekir bu tarz durumlarda işi kolaylaştırmaya yarar
+char		**fill_arr(t_prompt *main_prompt, char **prompt, int i, int len); // başlangıç indexi ve uzunluğu gönderilmiş komut parçalarını beraber çalışacakları tespit edildiği için bir düğüm içine sırasıyla yerleştiren fonksiyon
 void		add_last_cmd_to_envp(t_prompt *p);
 int			check_double_pipes(t_prompt *prompt);
 
 // handle_redirections
-int			get_type(char *str);
-void		handle_redir(t_prompt *ptr, int type);
-int			open_file(char **cmds, int i, int *save_fd, int io_flags[2]);
+int			get_type(char *str); // gönderilen komut stringinde redirectionları ve tiplerini tespit eden fonksiyon
+void		handle_redir(t_prompt *ptr, int type); // redirection komutlarının tespitini ve sonrasındaki yapılacak işlemleri ayarlayan fonksiyon
+int			open_file(char **cmds, int i, int *save_fd, int io_flags[2]); // redirection yapılmış bir dosyanın içerisine istenilen işlem için erişilebilmesi için open ile açan fonksiyon
 int			get_flags(int type, int file_access_type);
 int			open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type);
 int			syntax_error(t_prompt *prompt, char *token); // söz dizimi hatalarını handle edip yeni komut satırını başlatan fonksiyon
@@ -188,8 +188,8 @@ char		**add_str_to_arr(t_prompt *prompt, char **arr, char *str); // verilen stri
 char		*add_to_str(t_prompt *prompt, char **str, char *add); // verilen string sonuna add değişkeni içindeki stringi de ekleyen fonksiyon
 
 // list_utils
-void		add_node_to_list(t_prompt *prompt, t_node **head, t_cmddat *data);
-int			ft_listsize(t_node *lst);
+void		add_node_to_list(t_prompt *prompt, t_node **head, t_cmddat *data); // verilen linked listeye yeni bir düğüm daha ekleyen fonksiyon
+int			ft_listsize(t_node *lst); // gönderilen linked list in uzunluğunu hesaplar
 
 // envp_utils
 char		*get_path_cmds(t_cmddat *cmd, char **ev);
