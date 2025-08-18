@@ -13,48 +13,48 @@
 #include "../minishell.h"
 
 /* custom getenv for the parsed environment variables in the prompt struct */
-char	*get_envp(t_prompt *prompt, char *name)
+char	*get_envp(t_prompt *prompt, char *name) // verilen isimdeki environment değişkeninin değerini döndüren fonksiyon
 {
-	int		i;
-	int		l;
-	char	*str;
-	char	*env_var;
+	int		i; // dizinin içinde gezmek için kullanılacak index değişken
+	int		l; // aranacak envp adının uzunluğunu tutan değişken
+	char	*str; // aranacak env adını tutacak değişken
+	char	*env_var; // aranan environment değişkeninin değerini tutan değişken
 
-	i = 0;
-	if (!name)
-		return (NULL);
-	str = grbg_strjoin(prompt, name, "=");
-	if (!str)
-		return (NULL);
-	l = ft_strlen(str);
-	while (prompt->envp[i])
+	i = 0; // index değeri başlangıçta 0
+	if (!name) // eğer aranması istenen env değerinin adı boş gönderilmişse
+		return (NULL); // NULL döndürerek fonksiyondan çık
+	str = grbg_strjoin(prompt, name, "="); // str içine aranan env değişkeni adını ve sonuna = karakteri koy örneğin "path=" gibi
+	if (!str) // eğer str boşsa
+		return (NULL); // NULL döndür ve çık
+	l = ft_strlen(str); // aranan env değişkeni adının uzunluğunu döndür değerinin de bulunduğu string içinde arama yapabilmek için
+	while (prompt->envp[i]) // bütün environment değişkenlerini gez
 	{
-		if (!ft_strncmp(prompt->envp[i], str, l))
+		if (!ft_strncmp(prompt->envp[i], str, l)) // eğer elimizdeki env değişkeninin adı gönderilen isimle uyuşuyorsa
 		{
-			env_var = grbg_strdup(prompt, prompt->envp[i] + l);
-			return (env_var);
+			env_var = grbg_strdup(prompt, prompt->envp[i] + l); // istenilen env değişkeninin içeriği kadar hafızada yer aç ve içeriği kopyala
+			return (env_var); // istenilen isimdeki ortam değişkeninin değerini döndür
 		}
-		i++;
+		i++; // sonraki ortam değişkeni stringine ilerle
 	}
-	return (NULL);
+	return (NULL); // eğer gönderilen isimle eşleşen bir env değişkeni bulunamadıysa NULL döndür
 }
 
-void	modify_envp(t_prompt *prompt, char *name, char *insert)
+void	modify_envp(t_prompt *prompt, char *name, char *insert) // verilen environment değişkenini istenilen yeni değeriyle güncelleyen fonksiyon
 {
-	int		i;
-	char	*str;
+	int		i; // index değişken
+	char	*str; // environment değişkeninin güncel değerini tutacak değişken
 
-	i = 0;
-	if (!prompt->envp || !insert || !name)
-		return ;
-	str = grbg_strjoin(prompt, name, "=");
-	if (!str)
-		return ;
-	while (prompt->envp[i])
+	i = 0; // index başlangıçta 0
+	if (!prompt->envp || !insert || !name) // prompt içindeki evironment değişkeni boşsa, güncellenecek environment değişkeni adı boşsa ya da güncellenecek environment içeriği boşsa
+		return ; // fonksiyondan çık
+	str = grbg_strjoin(prompt, name, "="); // ortam değişkeni adının sonuna = ekleyip str içine at örneğin; str: "name="
+	if (!str) // eğer str boşsa yani güncellenecek ortam değişkeninin adı yoksa
+		return ; // fonksiyondan çık
+	while (prompt->envp[i]) // bütün ortam değişkenlerini dolaş
 	{
-		if (!ft_strncmp(prompt->envp[i], str, ft_strlen(str)))
-			prompt->envp[i] = grbg_strjoin(prompt, str, insert);
-		i++;
+		if (!ft_strncmp(prompt->envp[i], str, ft_strlen(str))) // str içeriği ile aynı isimle başlayan environment değişkeni varsa
+			prompt->envp[i] = grbg_strjoin(prompt, str, insert); // bu ortam değişkeninin içeriğini verilen insert değişkeni içeriğiyle değiştir, örneğin envp[i]: "name=insert" formatında olur
+		i++; // sonraki ortam değişkeni stringine ilerle
 	}
 }
 

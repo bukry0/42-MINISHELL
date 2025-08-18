@@ -13,6 +13,54 @@
 #include "../minishell.h"
 
 /*
+1: < (Input Redirection – Dosyadan Okuma)
+Bir komutun stdin (0)’ini bir dosyadan okumasını sağlar.
+Normalde komutlar input’u klavyeden (terminalden) alır, < ile bunu bir dosyaya bağlarsın. Örneğin;
+
+cat < input.txt
+
+Burada cat normalde terminalden bekler, ama < sayesinde input.txt dosyasını stdin olarak kullanır.
+Yani cat dosyanın içeriğini ekrana basar.
+
+2: << (Here-Document – Inline Input)
+Bir komutun stdin’ini terminalde girdiğin satırlardan alır, ta ki sen belirli bir “bitirme kelimesi” (delimiter) girene kadar. Örneğin;
+
+cat << END
+Merhaba
+Dünya
+END
+
+Burada cat komutu input’u kullanıcıdan alıyor.
+Sen satır satır yazıyorsun (Merhaba, Dünya), ta ki END kelimesini girene kadar.
+cat tüm bu yazdıklarını stdin gibi alıyor ve ekrana basıyor.
+Yani << aslında bir geçici dosya gibi davranıyor ama terminalden veri alıyor.
+
+3: > (Output Redirection – Dosyaya Yazma, Üzerine Yazma)
+Bir komutun stdout (1) çıktısını bir dosyaya yönlendirir. Eğer dosya varsa üzerine yazar, yoksa yeni dosya oluşturur. Örneğin;
+
+ls > files.txt
+
+Normalde ls çıktıyı ekrana basar. > ile files.txt dosyasına kaydeder.
+Dosya zaten varsa eski içerik silinir, yeni liste yazılır.
+
+4: >> (Append Output Redirection – Dosyaya Ekleme)
+Bu da stdout’u bir dosyaya yönlendirir ama üzerine yazmaz, sona ekler. Örneğin;
+
+echo "hello" >> log.txt
+
+echo çıktısını log.txt dosyasının sonuna ekler. Dosya yoksa yeni oluşturur.
+Bir log tutma senaryosunda çok kullanılır çünkü eski içerik silinmez.
+
+Özetle;
+< → Dosyadan oku
+> → Dosyaya yaz (üzerine yaz)
+>> → Dosyaya ekle
+<< → Terminalden satır satır oku, belirli bir kelime gelene kadar
+
+*/
+
+
+/*
   Determines the type of redirection for the given string `str`
   and returns the corresponding type value.
 
@@ -137,44 +185,44 @@ In this case, 00644 grants read and write permissions to
 the file owner, and read permissions to other users.
 */
 
-int	get_flags(int type, int file_access_type)
+int	get_flags(int type, int file_access_type) // input ya da output redirectionları var mı bunun tespitini yapan fonksiyon
 {
-	if (file_access_type == 0)
+	if (file_access_type == 0) // eğer file girişi tespit edilmesi istenilen input yönlendirmesi ise bu değişken 0 gönderilir
 	{
-		if (type == 1 || type == 2)
-			return (O_RDONLY);
-		if (type == 3)
-			return (O_WRONLY | O_CREAT | O_TRUNC);
-		if (type == 4)
-			return (O_WRONLY | O_CREAT | O_APPEND);
+		if (type == 1 || type == 2) // eğer redirection tipi 1: < ya da 2: << ise
+			return (O_RDONLY); // sadece input üzerinden çalışacağı için read only modu yeterli olacaktır
+		if (type == 3) // eğer redirection tipi 3: > ise
+			return (O_WRONLY | O_CREAT | O_TRUNC); // içine yazı da yazılması gerektiği için write only ve onun dışında da eğer yazılması gereken dosya yoksa açabilmemiz için creat ve eğer file varsa yazmadan önce içini boşaltmamız için trunc da gönderiyoruz
+		if (type == 4) // eğer redirection tipi 4: >> ise
+			return (O_WRONLY | O_CREAT | O_APPEND); // içine yazı yazılabilmesi için write only eğer yazılacak dosya yoksa açılması için creat ve dosya zaten varsa dosyanın tamamını silip yazmak yerine eski metinin sonuna yazmak için append
 	}
-	else if (file_access_type == 1)
+	else if (file_access_type == 1) // eğer output yönlendirmesi yapıldıysa değişken 1 olarak gönderilir
 	{
-		if (type == 1 || type == 2)
-			return (0);
-		if (type == 3 || type == 4)
-			return (0644);
+		if (type == 1 || type == 2) // eğer redirection tipi 1: < ya da 2: << ise
+			return (0); // 0 döndürülür hiçbir izin verilmemiş demek sanırım zaten sadece okunacak...
+		if (type == 3 || type == 4) // eğer redirection tipi 3: > ya da 4: >> ise
+			return (0644); // 0644 döndürülür bu da sanırım bütün izinleri vermek demekti hatta yukarıdaki return değerleri ile aynı muhtemelen çünkü orada da byte kaydırma ile değerler oluşturuluyordu O_WRONLY | O_CREATE | O_APPEND mesela 644 oluyordu gibi bir şeydi tamda hatırlamıyorum vaktim kalırsa araştıracağım...
 	}
-	return (0);
+	return (0); // hiçbir şarta girmediyse 0 döndür
 }
 
-int	open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type) 
-{
-	int	io_flags[2];
+int	open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type) // istenilen redirection a uygun modda istenilen dosyaların açılmasını sağlayan fonksiyon
+{	
+	int	io_flags[2]; // input ya da outputa yönlendirilmiş bir file var mı bunları tutan flagler 0: inputa 1: outputa olan yönlendirmeleri tutuyor
 
-	io_flags[0] = get_flags(type, 0);
-	io_flags[1] = get_flags(type, 1);
-	get_rid_quotes(prompt);
-	if (type == 1)
+	io_flags[0] = get_flags(type, 0); // input flaginin tespitini yapan fonksiyona gönderilir
+	io_flags[1] = get_flags(type, 1); // output flaginin tespitini yapan fonksiyon çağırılır
+	get_rid_quotes(prompt); // tırnakları temizleyen fonksiyon çağırılır zaten gerekli tırnaklara göre bölündüğü için artık karakter olarak tırnakların tokenlerin başında sonunda kalmaya devam etmesine gerek yok
+	if (type == 1) // eğer redirection tipi 1: < ise
 		cmd_struct->file_open = open_file(cmd_struct->full_cmd,
-				i, &cmd_struct->infile, io_flags);
-	else if (type == 2)
-		launch_heredoc(prompt, cmd_struct, i);
-	else if (type == 3)
+				i, &cmd_struct->infile, io_flags); // file_open içine istenilen redirection tipine uygun olan modlarda istenilen dosya açılır ve dosyanın açık olduğunu belirten 1 değeri flag olarak atanır
+	else if (type == 2) // eğer redirection tipi 2: << ise
+		launch_heredoc(prompt, cmd_struct, i); // heredoc çalıştırması için fonksiyon çağırılır, diğerleriden farklı olarak bu redirection ile ekrana yazılan girdiyi kullanıcının belirlediği değil kendi açtığımız geçici bir dosya içinde tutar sonra istenilen yere aktarıp bu geçici dosyayı kapatırız yani diğer redirect lere göre daha farklı bir işlem gerekir bu sebeple sadece open_file fonksiyonuna göndermek yeterli değildir
+	else if (type == 3) // eğer redirection tipi 3: > ise 
 		cmd_struct->file_open = open_file(cmd_struct->full_cmd,
-				i, &cmd_struct->outfile, io_flags);
-	else
+				i, &cmd_struct->outfile, io_flags); // file_open içine istenilen redirection tipine uygun olan modlarda istenilen dosya açılır ve dosyanın açık olduğunu belirten 1 değeri flag olarak atanır
+	else // redirection tipi 1 2 ya da 3 değilse zaten geriye 4: >> kalıyor
 		cmd_struct->file_open = open_file(cmd_struct->full_cmd,
-				i, &cmd_struct->outfile, io_flags);
-	return (0);
+				i, &cmd_struct->outfile, io_flags); // file_open içine istenilen redirection tipine uygun olan modlarda istenilen dosya açılır ve dosyanın açık olduğunu belirten 1 değeri flag olarak atanır
+	return (0); // fonksiyon biterken 0 döndür
 }

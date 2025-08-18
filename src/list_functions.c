@@ -12,57 +12,57 @@
 
 #include "../minishell.h"
 
-void	cstm_lstiter(t_node *lst, void (*f)(void *))
+void	cstm_lstiter(t_node *lst, void (*f)(void *)) // gönderilen listenin bütün elemanlarına f fonksiyonunu sırasıyla uygula
 {
-	if (!lst || !f)
-		return ;
-	while (lst)
+	if (!lst || !f) // liste ya da f fonksiyonu boşsa
+		return ; // fonksiyondan çık
+	while (lst) // listenin sonuna kadar ilerle
 	{
-		f(lst->data);
-		lst = lst->next;
+		f(lst->data); // f fonksiyonu içine elindeki düğümün içeriğini gönder, fonksiyon işlevi bu düğüme uygulansın
+		lst = lst->next; // bir sonraki node a ilerle
 	}
 }
 
-t_node	*cstm_lstlast(t_node *lst)
+t_node	*cstm_lstlast(t_node *lst) // gönderilen listenin son elemanına kadar ilerleyip son elemanını döndüren fonksiyon
 {
-	if (!lst)
-		return (NULL);
-	while (lst->next)
-		lst = lst->next;
-	return (lst);
+	if (!lst) // eğer gönderilen liste boşsa
+		return (NULL); // NULL döndür
+	while (lst->next) // bir sonraki düğüm doluysa
+		lst = lst->next; // bir sonraki düğüme ilerle
+	return (lst); // elde edilen son düğümü döndür
 }
 
-int	cstm_lstsize(t_node*lst)
+int	cstm_lstsize(t_node*lst) // gönderilen linked list in kaç elemanı olduğunu döndüren fonksiyon
 {
-	int	i;
+	int	i; // sayaç değişkeni
 
-	i = 0;
-	while (lst)
+	i = 0; // başşlangıçta 0
+	while (lst) // sonuna kadar ilerle
 	{
-		lst = lst->next;
-		i++;
+		lst = lst->next; // bir sonraki düğüme ilerle
+		i++; // her ilerlemede sayacı 1 arttır
 	}
-	return (i);
+	return (i); // listenin boyutunu döndür
 }
 
-void	cstm_lstclear(t_node **lst, void (*del)(void *))
+void	cstm_lstclear(t_node **lst, void (*del)(void *)) // gönderilen listenin tamamını silen fonksiyon
 {
-	t_node	*next;
+	t_node	*next; // düğümü silmeden önce bir sonraki düğümü kaybetmemek için tutacak olan değişken
 
-	if (!lst || !del)
-		return ;
-	while (*lst)
+	if (!lst || !del) // eğerlist boşsa ya da del fonksiyonu yoksa
+		return ; // fonksiyondan çık
+	while (*lst) // listenin sonuna kadar ilerle
 	{
-		next = (*lst)->next;
-		cstm_lstdelone(*lst, del);
-		*lst = next;
+		next = (*lst)->next; // bir sonraki düğümün adresini tut
+		cstm_lstdelone(*lst, del); // elindeki düğümü düğüm silen fonksiyona gönder
+		*lst = next; // tuttuğun bir sonraki düğümü geç
 	}
 }
 
-void	cstm_lstdelone(t_node *lst, void (*del)(void *))
+void	cstm_lstdelone(t_node *lst, void (*del)(void *)) // gönderilen düğümü silen fonksiyon
 {
-	if (!lst || !del)
-		return ;
-	del(lst->data);
-	free(lst);
+	if (!lst || !del) // eğer liste boşsa ya da del fonksiyonu tanımlanmamışsa
+		return ; // fonksiyondan çık
+	del(lst->data); // gönderilen düğümün içeriğini del fonksiyonu ile sil
+	free(lst); // hafızada tahsis edilen yeri serbest bırak
 }

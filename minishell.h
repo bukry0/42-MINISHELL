@@ -95,15 +95,15 @@ int			malloc_len(char const *str);
 // parser
 void		parser(t_prompt *prompt, int i, int j); // lexer ile spacelerle bölünüp birleştirilen komut dizisini anlamlı parçalar halinde bölen fonksiyon mesela pipe bulursa pipe öncesi olan komutu ayrı pipe sonrası olan komutu ayrı çalıştırmak gerekir bu tarz durumlarda işi kolaylaştırmaya yarar
 char		**fill_arr(t_prompt *main_prompt, char **prompt, int i, int len); // başlangıç indexi ve uzunluğu gönderilmiş komut parçalarını beraber çalışacakları tespit edildiği için bir düğüm içine sırasıyla yerleştiren fonksiyon
-void		add_last_cmd_to_envp(t_prompt *p);
+void		add_last_cmd_to_envp(t_prompt *p); // son komuta ilerle ve o komutun ilk indexteki içeriğini ortam değişkenlerine "_=" olarak kaydeden fonksiyon
 int			check_double_pipes(t_prompt *prompt);
 
 // handle_redirections
 int			get_type(char *str); // gönderilen komut stringinde redirectionları ve tiplerini tespit eden fonksiyon
 void		handle_redir(t_prompt *ptr, int type); // redirection komutlarının tespitini ve sonrasındaki yapılacak işlemleri ayarlayan fonksiyon
 int			open_file(char **cmds, int i, int *save_fd, int io_flags[2]); // redirection yapılmış bir dosyanın içerisine istenilen işlem için erişilebilmesi için open ile açan fonksiyon
-int			get_flags(int type, int file_access_type);
-int			open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type);
+int			get_flags(int type, int file_access_type); // input ya da output redirectionları var mı bunun tespitini yapan fonksiyon
+int			open_fd_redir(t_prompt *prompt, t_cmddat *cmd_struct, int i, int type); // istenilen redirection a uygun modda istenilen dosyaların açılmasını sağlayan fonksiyon
 int			syntax_error(t_prompt *prompt, char *token); // söz dizimi hatalarını handle edip yeni komut satırını başlatan fonksiyon
 
 // here_doc
@@ -136,8 +136,8 @@ size_t		get_len_env(const char *s);
 int			cstm_cd(t_cmddat *cmd_data);
 int			go_home_dir(t_prompt *prompt);
 int			go_back_dir(t_prompt *prompt);
-void		modify_envp(t_prompt *prompt, char *name, char *insert);
-char		*get_envp(t_prompt *prompt, char *name);
+void		modify_envp(t_prompt *prompt, char *name, char *insert); // verilen environment değişkenini istenilen yeni değeriyle güncelleyen fonksiyon
+char		*get_envp(t_prompt *prompt, char *name); // verilen isimdeki environment değişkeninin değerini döndüren fonksiyon
 
 // cstm_export
 int			cstm_export(t_cmddat *cmd);
@@ -172,11 +172,11 @@ char		*grbg_itoa(t_prompt *prompt, int n);
 char		*grbg_strjoin(t_prompt *prompt, char const *s1, char const *s2);
 
 // list_functions
-void		cstm_lstiter(t_node *lst, void (*f)(void *));
-t_node		*cstm_lstlast(t_node *lst);
-int			cstm_lstsize(t_node *lst);
-void		cstm_lstclear(t_node **lst, void (*del)(void *));
-void		cstm_lstdelone(t_node *lst, void (*del)(void *));
+void		cstm_lstiter(t_node *lst, void (*f)(void *)); // gönderilen listenin bütün elemanlarına f fonksiyonunu sırasıyla uygula
+t_node		*cstm_lstlast(t_node *lst); // gönderilen listenin son elemanına kadar ilerleyip son elemanını döndüren fonksiyon
+int			cstm_lstsize(t_node *lst); // gönderilen linked list in kaç elemanı olduğunu döndüren fonksiyon
+void		cstm_lstclear(t_node **lst, void (*del)(void *)); // gönderilen listenin tamamını silen fonksiyon
+void		cstm_lstdelone(t_node *lst, void (*del)(void *)); // gönderilen düğümü silen fonksiyon
 
 // utils
 size_t		get_len_arr(char **array); // array uzunluğunu bulan fonksiyon
@@ -192,9 +192,9 @@ void		add_node_to_list(t_prompt *prompt, t_node **head, t_cmddat *data); // veri
 int			ft_listsize(t_node *lst); // gönderilen linked list in uzunluğunu hesaplar
 
 // envp_utils
-char		*get_path_cmds(t_cmddat *cmd, char **ev);
-char		*get_path(char *cmd, char **ev, size_t i);
-void		free_split(char **strs);
+char		*get_path_cmds(t_cmddat *cmd, char **ev); // verilen komutun çalıştırılabilir tam yolunu bulmak, örn: "ls" girildiğinde /bin/ls şeklinde döndürmeyi sağlayan fonksiyon
+char		*get_path(char *cmd, char **ev, size_t i); // prompt süreci boyunca o an bulunduğumuz dosya yolunda gönderdiğimiz komuta izin olup olmadığını tespit edecek fonksiyon
+void		free_split(char **strs); // gönderilen string dizisine ayrılan alanları boşalt
 
 // expander
 char		**expander(t_prompt *prompt, char **str, char **ev); // str içindeki anlamlı parçalara bölünmüş kodların içinde expanded değişkenlerin ($ ile başlayan bash değişkenler) sistemdeki değerlerini yerine yazıp güncelleyen fonksiyon
