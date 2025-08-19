@@ -22,9 +22,9 @@ void	launch_minishell(t_prompt *prompt) // shell programımızın ana çalışma
 		prompt->stop = 0; // döngüleri durdurduğumuz flagi sıfırlıyoruz örneğin bir önceki komut satırından çıkılırken değeri 1 yapılmıştı
 		lexer(prompt); // girilen bütün komutların parçalanmasını (tokenize) sağlayan ve hatta sistemdeki değişkenler çağrıldıysa yerlerine yerleştiren fonksiyon çağırılır
 		if (prompt->stop == 0) // eğer döngüyü durdurma flagi hala 0 ise yani lexer komutları bölme işleminde bir sorun çıkmadıysa
-			parser(prompt, 0, 0); // bölünmüş haldeki komutlar yani tokenler analiz edilir hangi işlem yapılması gerektiğine karar verebilmek için
-        if (cstm_lstsize(prompt->cmd_list) > 1 && prompt->stop == 0) // eğer birden fazla komut varsa |, <<, > kullanılarak birleştirilmiş gibi
-			pipe_infile_outfile(prompt->cmd_list); // bu birleştirme işlemlerinden hangisinin kullanıldığını analiz edip yapılacak işlemi belirlememizi sağlayan fonksiyon çağırılır
+			parser(prompt, 0, 0); // bölünmüş haldeki komutlar yani tokenler analiz edilir pipe ve redirectler handle edilir
+        if (cstm_lstsize(prompt->cmd_list) > 1 && prompt->stop == 0) // eğer birden fazla birbirine bağlı ama kendi başlarına da farklı anlamlar taşıyan komut varsa (| kullanılarak birleştirilmiş gibi)
+			pipe_infile_outfile(prompt->cmd_list); // kullanılan pipe için okuma ve yazma uçlarını analiz edip değerlerini ayarlar
 		if (!prompt->stop) // eğer döngü durdurma flagi bu işlemlerden sonra da hala 0 ise yani girilen komutlarda mantık hataları da yok ise
         	execute_cmds(prompt); // artık komutları çalıştırma işlemlerinin yapıldığı fonksiyon çalıştırılır
 		prompt->cmd_list = NULL; // yeni satıra geçilmeden önce son olarak önceki satırdaki komut listemiz temizlenir
@@ -34,32 +34,32 @@ void	launch_minishell(t_prompt *prompt) // shell programımızın ana çalışma
 /* no garbage collection for below function as it does not leak
 set outfile to write end of pipe
 set infile to read end of pipe */
-void	pipe_infile_outfile(t_node *cmd_lst)
+void	pipe_infile_outfile(t_node *cmd_lst) // komut listesindeki her komutu bir sonraki ile | (pipe) üzerinden bağlamak
 {
-    int	*pip;
+    int	*pip; // pipe() fonksiyonunun döndürdüğü okuma 0 ve yazma 1 uçlarının değerini tutacak integer array
     
-	while (cmd_lst->next != NULL)
+	while (cmd_lst->next != NULL) // komut listesinin sonuna gelene kadar gez
 	{
-        pip = ft_calloc(2, sizeof(int));
-		if (!pip)
-        return ;
-		if (pipe(pip) == -1)
+        pip = ft_calloc(2, sizeof(int)); // 2 tane integer kadar pip değişkenine yer ayır
+		if (!pip) // eğer yer ayrılırken hata olduysa
+        	return ; // fonksiyondan çık
+		if (pipe(pip) == -1) // pipe fonksiyonu başarısız olursa
 		{
-            free(pip);
-			return ;
+            free(pip); // ayrılan belleği serbest bırak
+			return ; // fonksiyondan çık
 		}
-		if (cmd_lst->data->outfile == 1)
-        cmd_lst->data->outfile = pip[1];
-		else
-        close(pip[1]);
-		if (cmd_lst->next->data->infile == 0)
-        cmd_lst->next->data->infile = pip[0];
-		else
-        close(pip[0]);
-		cmd_lst = cmd_lst->next;
-		free(pip);
+		if (cmd_lst->data->outfile == 1) // eğer pipe ın yazma ucu daha önce ayarlanmamışsa
+	        cmd_lst->data->outfile = pip[1]; // fonksiyondan dönen yazma ucu değeri atanır
+		else // eğer daha önce atandıysa
+    	    close(pip[1]); // yazma işi bitmiş olan dosyayı kapat
+		if (cmd_lst->next->data->infile == 0) // eğer pipe ın giriş değeri daha önce ayarlanmadıysa
+        	cmd_lst->next->data->infile = pip[0]; //  okuma ucu için dönen değer atılır (okunacak dosyanın fd değeri)
+		else // eğer okuma ucu daha önce ayarlandıysa
+        	close(pip[0]); // okuma işlemi bitmiş demektir dosya kapatılır
+		cmd_lst = cmd_lst->next; // somraki komuta ilerle
+		free(pip); // pip değişkenine ayrılan alanı srbest bırak
 	}
-	return ;
+	return ; // fonksiyon bitti çık
 }
 
 int	main(int argc, char *argv[], char **envp) // env = environment, ortam değişkenlerini içeren bir string dizisi (HOME/bcili/..., PATH, etc.)

@@ -111,23 +111,27 @@ void	run_cmd(void *content)
 	return ;
 }
 
-int	execute_cmds(t_prompt *prompt)
+/*
+Kullanıcının yazdığı komutları (prompt->cmd_list) alıp çalıştırmak.
+İçinde hem built-in komutları (ör. cd, echo, exit …) hem de dış komutları (ls, grep vs.) yönetiyor
+*/
+int	execute_cmds(t_prompt *prompt) // kod çalıştırma başlamadan önce bazı analizler sonucu ön hazırlıkları da yapılmış komutların işlerinin başlaması için ana fonksiyonlara yönlendiren fonksiyon
 {
-	t_cmddat	*cmd_data;
+	t_cmddat	*cmd_data; // prompt un içeriğini geçici olarak tutacak değişken
 
-	if (!prompt->cmd_list || !prompt->cmd_list->data->full_cmd[0])
-		return (0);
-	cmd_data = prompt->cmd_list->data;
-	if (cstm_lstsize(prompt->cmd_list) == 1 && get_builtin_nbr(cmd_data))
+	if (!prompt->cmd_list || !prompt->cmd_list->data->full_cmd[0]) // eğer komut listesi boşsa ya da komut listesinin içeriğinideki komutun ilk komut stringi boşsa
+		return (0); // 0 döndür ve çık
+	cmd_data = prompt->cmd_list->data; // promptun içindeki komut listesindeki içeriği geçici içerik tutacak değişkene aktar
+	if (cstm_lstsize(prompt->cmd_list) == 1 && get_builtin_nbr(cmd_data)) // eğer komut listesinde sadece 1 komut zinciri varsa yani tek bir işlemle yapılabilecek bir komutsa pipe redirect olmayan vb ve bu komutta builtin komutu ise (get_builtin_nbr(cmd_data) → built-in ID döndürür) tek builtin varsa fork exec yapılmaz direkt olarak parent shell içinde çalışır (örneğin cd’nin child process’te çalışmasının bir anlamı yok, çünkü parent shell’in dizinini değiştirmezdi)
 	{
-		g_exitstatus = execute_builtin(cmd_data, get_builtin_nbr(cmd_data), 0);
-		cstm_lstiter(prompt->cmd_list, cls_fds);
+		g_exitstatus = execute_builtin(cmd_data, get_builtin_nbr(cmd_data), 0); // execute_builtin → komutu çalıştırır, sonucunu g_exitstatus değişkenine yazar
+		cstm_lstiter(prompt->cmd_list, cls_fds); //  cls_fds ile komutun açık dosya tanıtıcıları (fd’ler) kapatılır
 	}
-	else
+	else // eğer 1 den fazla builtin varsa veya komut builtin değilse 
 	{
-		cstm_lstiter(prompt->cmd_list, run_cmd);
-		cstm_lstiter(prompt->cmd_list, cls_fds);
-		wait_update_exitstatus(prompt);
+		cstm_lstiter(prompt->cmd_list, run_cmd); // run_cmd ile her komut fork+exec yapılır (veya gerekli şekilde çalıştırılır
+		cstm_lstiter(prompt->cmd_list, cls_fds); // cls_fds ile pipe ve dosya fd’leri kapatılır
+		wait_update_exitstatus(prompt); // child process’lerin bitmesi beklenir → exit status güncellenir
 	}
-	return (0);
+	return (0); // 0 döndür fonksiyonu bitir
 }

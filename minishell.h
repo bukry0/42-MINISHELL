@@ -73,7 +73,7 @@ void		exit_ms(int g_exitstatus, t_prompt *prompt);
 
 // main
 void		launch_minishell(t_prompt *prompt); // shell programımızın ana çalışma döngüsünü  içeren fonksiyon
-void		pipe_infile_outfile(t_node *cmd_lst);
+void		pipe_infile_outfile(t_node *cmd_lst); // komut listesindeki her komutu bir sonraki ile | (pipe) üzerinden bağlamak
 
 // init
 void		init_prompt_struct(t_prompt *prompt, char **envp); // prompt isimli structın içeriğini verilen envp ortam değişkenleriyle başlatır yani şuanda bulunulan dizin bilgileri vs
@@ -88,9 +88,9 @@ char		*handle_spaces(t_prompt *prompt, char *str, size_t i, int j); // space dü
 char		**ft_create_substrs(t_prompt *p, char **aux, char const *s, char *set); // set karakterine göre ve tırnaklara göre girilen komut satırını bölen fonksiyon
 
 // quotes_utils
-void		get_rid_quotes(t_prompt *prompt);
-char		*get_trimmed(t_prompt *prompt, char const *s1, int squote, int dquote);
-int			malloc_len(char const *str);
+void		get_rid_quotes(t_prompt *prompt); // artık input token edildiği için artık zaten parçalanmış stringlerde bulunan tırnakları temizlememizi sağlayan fonksiyon
+char		*get_trimmed(t_prompt *prompt, char const *s1, int squote, int dquote); // gönderilen stringde tırnak karakterleri dışındaki karakterleri kopyalayıp tırnaksız halini döndüren fonksiyon
+int			malloc_len(char const *str); // gönderilen stringde kaç tane tırnak işareti silineceğininin sayısını döndüren fonksiyon
 
 // parser
 void		parser(t_prompt *prompt, int i, int j); // lexer ile spacelerle bölünüp birleştirilen komut dizisini anlamlı parçalar halinde bölen fonksiyon mesela pipe bulursa pipe öncesi olan komutu ayrı pipe sonrası olan komutu ayrı çalıştırmak gerekir bu tarz durumlarda işi kolaylaştırmaya yarar

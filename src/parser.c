@@ -135,7 +135,7 @@ static void	parse_remaining(t_prompt *prompt) // token kontrolü, redirection, e
 	type = 0; // başlangıçta redirection yokmuş gibi 0
 	check_token(prompt); // tokenlerde hatalı bir yazılım sıralama vs var mı diye kontrol eder varsa free lemeleri yapıp çıkar
 	if (prompt->stop == 0) // eğer stop flagi hala false ise
-		handle_redir(prompt, type); // redirection komutlarını (<, <<, >>, >) kontrol eder
+		handle_redir(prompt, type); // redirection komutlarını (<, <<, >>, >) kontrol eder hata var mı diye ve eğer doğru bir redirection komutu varsa onun için gerekli yönlendirmeleri yapacak prompt içindeki değişkenlere değerleri atar
 	if (prompt->cmd_list != NULL) // eğer komut listesi boş değilse
 		add_last_cmd_to_envp(prompt); // son komutun path veya env bilgilerini günceller
 	get_rid_quotes(prompt); // zaten komut satırı bölündüğü için artık tırnak işaretleri string içlerinden silinir mesela echo "hello world"->["echo", ""hello world""] yerine ["echo", "hello world"] kalacak komut dizisi içinde parçalanmış halleri

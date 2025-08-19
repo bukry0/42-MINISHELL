@@ -91,5 +91,5 @@ void	add_last_cmd_to_envp(t_prompt *prompt) // son komuta ilerle ve o komutun il
 	cmd = cstm_lstlast(prompt->cmd_list)->data; // gönderilen listenin sonuna ilerle ve son düğümünün de datasını cmd içine at
 	l = get_len_arr(cmd->full_cmd); // tokenlerin toplam uzunluğunu l ye at
 	if (l) // eğer l 0 değilse
-		modify_envp(prompt, "_", grbg_strdup(prompt, cmd->full_cmd[0])); // ortam değişenini güncelle şununla: "_=cmd->full_cmd[0]", şuanda son cmd deyiz
+		modify_envp(prompt, "_", grbg_strdup(prompt, cmd->full_cmd[0])); // ortam değişenini güncelle şununla: "_=cmd->full_cmd[0]", şuanda son cmd deyiz onin ilk komutunu yaz
 }
