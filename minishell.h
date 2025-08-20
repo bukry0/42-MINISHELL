@@ -96,7 +96,7 @@ int			malloc_len(char const *str); // gönderilen stringde kaç tane tırnak iş
 void		parser(t_prompt *prompt, int i, int j); // lexer ile spacelerle bölünüp birleştirilen komut dizisini anlamlı parçalar halinde bölen fonksiyon mesela pipe bulursa pipe öncesi olan komutu ayrı pipe sonrası olan komutu ayrı çalıştırmak gerekir bu tarz durumlarda işi kolaylaştırmaya yarar
 char		**fill_arr(t_prompt *main_prompt, char **prompt, int i, int len); // başlangıç indexi ve uzunluğu gönderilmiş komut parçalarını beraber çalışacakları tespit edildiği için bir düğüm içine sırasıyla yerleştiren fonksiyon
 void		add_last_cmd_to_envp(t_prompt *p); // son komuta ilerle ve o komutun ilk indexteki içeriğini ortam değişkenlerine "_=" olarak kaydeden fonksiyon
-int			check_double_pipes(t_prompt *prompt);
+int			check_double_pipes(t_prompt *prompt); // girilen pipe shell komutlarında veya anlamına gelen || çift halde mi girilmiş yoksa farklı işlevi olan | olarak mı girilmiş bunun kontrolü yapılır
 
 // handle_redirections
 int			get_type(char *str); // gönderilen komut stringinde redirectionları ve tiplerini tespit eden fonksiyon
@@ -112,11 +112,11 @@ int			get_heredoc(t_prompt *prompt, char *lim);
 int			pipe_heredoc(char *content);
 
 // builtins
-int			get_builtin_nbr(t_cmddat *cmd);
-int			execute_builtin(t_cmddat *cmd, int n, int forked);
+int			get_builtin_nbr(t_cmddat *cmd); // girilen kodun karakterlerini kontrol eder ve hangi kodun builltin olup olmadığına göre true veya false değerler döndürür ve eğer komut builtins ise hangi builtins olduğunu farklı rakamlar göndererek belirtir örneğin; echo:1, cd:2, pwd:3, export:4, unset:5, env:6, exit:7 döndüren fonksiyon
+int			execute_builtin(t_cmddat *cmd, int n, int forked); // hangi builtin komutu olduğu numaralandırılarak n ile gönderilen komutu istenilen şekilde çalıştıracak fonksiyona gönderen fonksiyon
 
 // cstm_echo
-int			cstm_echo(t_cmddat *cmd_data);
+int			cstm_echo(t_cmddat *cmd_data); // echo (yazma) komutunun işlevini yapan fonksiyon
 
 // cstm_pwd
 int			cstm_pwd(t_cmddat *cmd_data);
@@ -147,11 +147,11 @@ int			get_len_id(t_prompt *prompt, char *str, int msg);
 int			scan_envp(t_cmddat *cmd, char *str, int id_len);
 
 // executor
-int			execute_cmds(t_prompt *prompt);
-void		cls_fds(void *content);
-void		run_cmd(void *content);
-void		wait_update_g_exitstatus(t_prompt *prompt);
-int			is_executable(t_cmddat *cmd_data);
+int			execute_cmds(t_prompt *prompt); // kod çalıştırma işlemi başlamadan önce bazı analizler sonucu ön hazırlıkları da yapılmış komutların işlerinin başlaması için ana fonksiyonlara yönlendiren fonksiyon
+void		cls_fds(void *content); // gönderilen komut içeriğindeki bilgilerden açık olan dosya olup olmadığını kontrol eden ve eğer açık dosya varsa kaptan fonksiyon
+void		run_cmd(void *content); // builtin olmayan ya da birden fazla iç içe komut içeren komut dizilerinin çalışmasını sağlayan fonksiyonlara yönlendiren fonksiyon
+void		wait_update_exitstatus(t_prompt *prompt); // bütün child processlerin beklendiği ve biten child processlere göre exit code ların atandığı fonksiyon
+int			is_executable(t_cmddat *cmd_data); // gönderilen komut bulunduğu dizinde çalıştırılabilir mi bunu kontrol eden fonksiyon
 
 // signal_handler
 void		sigint_handler(int signum);
