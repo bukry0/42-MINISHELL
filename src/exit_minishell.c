@@ -151,38 +151,38 @@ Built-in'ler parent'da çalışıyorsa onların dönüşü $? olur.
 
 
 /*free and exit*/
-void	exit_ms(int g_exitstatus, t_prompt *prompt)
+void	exit_ms(int g_exitstatus, t_prompt *prompt) // programı kapatıp çıkan fonksiyon
 {
-	free_all(prompt);
-	exit(g_exitstatus);
+	free_all(prompt); // bütün prompt içindeki değişkenler için ayrılan alanı serbest bırakacak fonksiyon çağırılır
+	exit(g_exitstatus); // daha önceden belirlenmiş exit code ile programı kapat ve çık
 }
 
-void	free_all(t_prompt *prompt)
+void	free_all(t_prompt *prompt) // program kapanmadan öncr bütün değişkenlerin alanlarını serbest bırakacak fonksiyon
 {
-	free_grbg(prompt->grbg_lst);
-	rl_clear_history();
-	if (prompt)
-		free(prompt);
+	free_grbg(prompt->grbg_lst); // garbage yardımı ile ayrılmış bütün değişkenlerin alanları serbest bırakılır
+	rl_clear_history(); // girilen komutların sırasıyla tutulduğu komut historysini temizler (readline hazır fonksiyonu)
+	if (prompt) // eğer prompt boş değilse
+		free(prompt); // prompt un hafızadaki alanını boşalt
 }
 
-void	free_node_list(t_node *head)
+void	free_node_list(t_node *head) // gönderilen linked list içindeki bütün değişkenlerin hafızada kullandıkları alanları serbest bırakan fonksiyon
 {
-	t_node	*current;
-	t_node	*temp;
+	t_node	*current; // list içinde gezerken kullanacağımız geçici tutucu değişken
+	t_node	*temp; // elimdeki değişkeni free lerken sonraki değişkenin adresini kaybetmemek için basamak olarak kullanacağım değişken
 
-	current = head;
-	while (current)
+	current = head; // liked list içindeki ilk değişkene eşitleyerek başlıyoruz
+	while (current) // linked listin sonuna gidene kadar ilerle
 	{
-		temp = current;
-		current = current->next;
-		if (temp && temp->data)
+		temp = current; // elindeki list değerini tempe kopyala
+		current = current->next; // bir sonraki düğüme geç
+		if (temp && temp->data) // elindeki düğüm ve içeriği boş değilse
 		{
-			if (temp->data->full_cmd)
-				free(temp->data->full_cmd);
-			if (temp->data->full_path)
-				free(temp->data->full_path);
-			free(temp->data);
+			if (temp->data->full_cmd) // içerikteki tüm komut satırını tutan değişken doluysa
+				free(temp->data->full_cmd); // komut satırına ayrılan belleği serbest bırak
+			if (temp->data->full_path) // içerikteki çalıştırılabilir path boş değilse
+				free(temp->data->full_path); // boşalt
+			free(temp->data); // içeriği tutan değişkenin tuttuğu belleği de serbest bırak
 		}
-		free(temp);
+		free(temp); // listedeki sonraki elemana geçmeden önce liste elemanı da freelendi
 	}
 }

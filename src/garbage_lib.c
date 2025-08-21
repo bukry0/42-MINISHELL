@@ -66,7 +66,7 @@ char	*grbg_strjoin(t_prompt *prompt, char const *s1, char const *s2)
 	dest = get_grbg(prompt, sizeof(char), len);
 	if (!dest)
 		return (NULL);
-	ft_strlcpy(dest, s1, ft_strlen(s1) + 1);
+	ft_strlcpy(dest, s1, len); // len = ft_strlen(s1) + 1
 	ft_strlcat(dest, s2, len);
 	return (dest);
 }

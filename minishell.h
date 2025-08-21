@@ -27,7 +27,7 @@
 # include <unistd.h> // write, read, close, fork, execve, pipe, dup, chdir, getcwd, access
 
 extern int				g_exitstatus; // extern: global bir yerde tanımlandı, bu file'da da kullanacağım
-									  // exitstatus: 
+
 typedef struct s_node	t_node;
 typedef struct s_prompt	t_prompt;
 typedef struct s_cmddat	t_cmddat;
@@ -67,9 +67,9 @@ typedef struct s_grbg // her allocation yapılan pointer bu listeye ekleniyor ve
 }						t_grbg;
 
 // exit_minishell
-void		free_node_list(t_node *head);
-void		free_all(t_prompt *prompt);
-void		exit_ms(int g_exitstatus, t_prompt *prompt);
+void		free_node_list(t_node *head); // gönderilen linked list içindeki bütün değişkenlerin hafızada kullandıkları alanları serbest bırakan fonksiyon
+void		free_all(t_prompt *prompt); // program kapanmadan öncr bütün değişkenlerin alanlarını serbest bırakacak fonksiyon
+void		exit_ms(int g_exitstatus, t_prompt *prompt); // programı kapatıp çıkan fonksiyon
 
 // main
 void		launch_minishell(t_prompt *prompt); // shell programımızın ana çalışma döngüsünü  içeren fonksiyon
@@ -119,32 +119,32 @@ int			execute_builtin(t_cmddat *cmd, int n, int forked); // hangi builtin komutu
 int			cstm_echo(t_cmddat *cmd_data); // echo (yazma) komutunun işlevini yapan fonksiyon
 
 // cstm_pwd
-int			cstm_pwd(t_cmddat *cmd_data);
+int			cstm_pwd(t_cmddat *cmd_data); // pwd (bulunduğu dizini yazma) komutunun işlevini yapan fonksiyon
 
 // cstm_env
-int			cstm_env(t_cmddat *cmd_data);
+int			cstm_env(t_cmddat *cmd_data); // env komutunun işlevini manuel olarak yapacak fonksiyon
 
 // cstm_exit
-int			cstm_exit(t_cmddat *cmd_data);
-int			is_only_digits(char *s);
+int			cstm_exit(t_cmddat *cmd_data); // exit komutu girildiğinde programdan manuel olarak çıkış yapacak fonksiyon
+int			is_only_digits(char *s); // gönderilen string sadece nümerik karakterlerden mi oluşuyor diye kontrol eden fonksiyon 0: false, digit değil, 1: true, digit
 
 // cstm_unset
-int			cstm_unset(t_cmddat *cmd);
-size_t		get_len_env(const char *s);
+int			cstm_unset(t_cmddat *cmd); // unset (env değişkeni silme) komutunun işlevini manuel olarak yapan fonksiyon
+size_t		get_len_env(const char *s); // key-value olarak kaydedilen env (ortam değişkenlerinin) key değerinin kaç karakter olduğunu sayan fonksiyon
 
 // cstm_cd
-int			cstm_cd(t_cmddat *cmd_data);
-int			go_home_dir(t_prompt *prompt);
-int			go_back_dir(t_prompt *prompt);
+int			cstm_cd(t_cmddat *cmd_data); // cd (dizin değiştirme) komutunun yapacağı işi manuel yapacak fonksiyon
+int			go_home_dir(t_prompt *prompt); // HOME dizinine geçmek için cd ya da cd ~ komutları girildiyse HOME dizinine geçen fonksiyon
+int			go_back_dir(t_prompt *prompt);// cd - komutu girilirse history (OLDPWD) den bir önceki dizine geri geçilmesini sağlayan fonksiyon
 void		modify_envp(t_prompt *prompt, char *name, char *insert); // verilen environment değişkenini istenilen yeni değeriyle güncelleyen fonksiyon
 char		*get_envp(t_prompt *prompt, char *name); // verilen isimdeki environment değişkeninin değerini döndüren fonksiyon
 
 // cstm_export
-int			cstm_export(t_cmddat *cmd);
-int			print_export(t_cmddat *cmd);
-void		print_line_export(t_cmddat *cmd, int i);
-int			get_len_id(t_prompt *prompt, char *str, int msg);
-int			scan_envp(t_cmddat *cmd, char *str, int id_len);
+int			cstm_export(t_cmddat *cmd); // export (yeni env değişkeni tanımlama) komutunun işini manuel yapacak fonksiyon
+int			print_export(t_cmddat *cmd); // sadece export olarak girildiyse komut bütün export edilmiş değişkenleri ekrana yazdıran fonksiyon
+void		print_line_export(t_cmddat *cmd, int i); // sadece export komutu girildiğinde ekrana yazdırılacak env değerinin 1 satırını doğru formatta yazdıran fonksiyon
+int			get_len_id(t_prompt *prompt, char *str, int msg); // gönderilen env değerinin key kısmının uzunluğunu döndürecek ve key değeri isim formatına uygun mu kontrolü yapacak fonksiyon
+int			scan_envp(t_cmddat *cmd, char *str, int id_len); // eklenmek için gönderilen değişkeni env de uygun yere ekler (zaten varsa günceller yoksa yeni env olarak ekler)
 
 // executor
 int			execute_cmds(t_prompt *prompt); // kod çalıştırma işlemi başlamadan önce bazı analizler sonucu ön hazırlıkları da yapılmış komutların işlerinin başlaması için ana fonksiyonlara yönlendiren fonksiyon
