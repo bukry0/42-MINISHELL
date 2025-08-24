@@ -167,7 +167,7 @@ int	cstm_cd(t_cmddat *cmd_data) // cd (dizin değiştirme) komutunun yapacağı 
 	char	*cwd_before; // dizinin değiştirilmeden önceki hali
 	char	*cwd_after; // dizinin değiştirildikten sonraki hali
 
-	if (cmd_data->full_cmd[2]) // 2 dean fazla argüman girildiyse argv[0]: cd, argv[1]: /dizin ya da - ya da ~
+	if (cmd_data->full_cmd[1] && cmd_data->full_cmd[2]) // 2 dean fazla argüman girildiyse argv[0]: cd, argv[1]: /dizin ya da - ya da ~
 		return (print_err_msg_lng("cd", "too many arguments", NULL)); // fazla argüman olduğunun hata mesajı yazılıp çıkılır
 	if (cmd_data->full_cmd) // komut satırı boş değilse
 	{

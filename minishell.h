@@ -161,15 +161,15 @@ void		handle_sig_int(int n); // zaten yeni bir komut satırındayken yani fork()
 void		signals_non_interactive(void); // çalışan bir komut varken yani aktif bir fork() ve execve() varken girilen sinyallerin handle edilmesini sağlayan fonksiyon
 
 // garbage_collector
-void		*get_grbg(t_prompt *prompt, size_t nmemb, size_t size);
-void		collect_grbg(t_prompt *prompt, void *new);
-void		free_grbg(t_grbg *head);
+void		*get_grbg(t_prompt *prompt, size_t nmemb, size_t size); // nmemb*size kadar hafızada yer ayırıp bu yerin adresini döndüren fonksiyon
+void		collect_grbg(t_prompt *prompt, void *new); // yer ayrılma işlemi yapılmış değişkenleri program sonunda beraber temizleyebilmek için prompt->grbg_lst içinde toplayan fonksiyon
+void		free_grbg(t_grbg *head); // hafızada alan açıldığı için garbage listesi içine alınan elemanlarının hepsinin hafızadaki yerlerini serbest bırakan fonksiyon
 
 // garbage_lib
-char		*grbg_strdup(t_prompt *prompt, const char *s);
-char		*grbg_substr(t_prompt *prompt, char const *s, unsigned int start, size_t len);
-char		*grbg_itoa(t_prompt *prompt, int n);
-char		*grbg_strjoin(t_prompt *prompt, char const *s1, char const *s2);
+char		*grbg_strdup(t_prompt *prompt, const char *s); // gönderilen s stringinin hafızada alan ayrılmış halini döndüren fonksiyon
+char		*grbg_substr(t_prompt *prompt, char const *s, unsigned int start, size_t len); // gönderilen stringin start indexinden sonraki len kadar karakterini döndüren fonksiyon
+char		*grbg_itoa(t_prompt *prompt, int n); // gönderilen integer değişkeni stringe çevirip döndüren fonksiyon
+char		*grbg_strjoin(t_prompt *prompt, char const *s1, char const *s2); // gönderilen stringin sonuna diğer gönderilen stringi ekleyen fonksiyon
 
 // list_functions
 void		cstm_lstiter(t_node *lst, void (*f)(void *)); // gönderilen listenin bütün elemanlarına f fonksiyonunu sırasıyla uygula
