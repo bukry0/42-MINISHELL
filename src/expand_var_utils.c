@@ -70,6 +70,8 @@ variable to be expanded.
   Returns:
     - Pointer to the newly created string with the expanded environment variable.
 */
+
+// sıla export TEST=42; echo $TEST | cat
 char	*create_sub_var(char *str, size_t i, char **ev, ssize_t len) // stringde tespit edilen değişkenin eğer atanmış bir değeri varsa onu yerine koyup stringin geri kalanıyla birleştirip gönderen fonksiyon
 {
 	char	*s1; // stringde değeri değiştirilecek değişkenden önceki karakterleri tutar
@@ -81,7 +83,11 @@ char	*create_sub_var(char *str, size_t i, char **ev, ssize_t len) // stringde te
 	expanded_tmp = NULL; // başlangıç değeri NULL
 	s1 = ft_substr(str, 0, i); //  stringin start olarak gönderilen karaktere kadar olan kısmını tutar
 	s3 = ft_substr(str, i + len + 1, ft_strlen(str) - i - len); // stringin start+lenght yani doldurulması istenilen kısmının bittiği yerden sonrasındaki karakterleri tutar
-	s2 = ft_strdup(get_ptr_var(&str[i + 1], len, ev)); // başlangıç karakterinden ($) bir sonraki karakteri ve tespit edilen değişken adı uzunluğunu gönderip değişken adının ve sistemdeki kayıtlı değerinin tespitini yapar ve s2 içine atar
+	s2 = get_ptr_var(&str[i + 1], len, ev); // başlangıç karakterinden ($) bir sonraki karakteri ve tespit edilen değişken adı uzunluğunu gönderip değişken adının ve sistemdeki kayıtlı değerinin tespitini yapar ve s2 içine atar
+	if (s2 == NULL) // sıla
+		s2 = ft_strdup(""); // get_ptr_var NULL dönerse strdup içine direkt atmak seg fault oluyordu "" gönderiyorum
+	else
+		s2 = ft_strdup(s2);
 	if (s2 != NULL ) // eğer aranan değişken ismine karşılık bir değer bulunduysa sistemde
 	{
 		expanded_tmp = ft_strjoin(s1, s2); // $ karakterinden önceki string ile dolar karakterinden sonraki değeri yenilenen değişken string birleştirilir

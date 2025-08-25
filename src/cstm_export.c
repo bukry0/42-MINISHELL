@@ -62,7 +62,7 @@ int	cstm_export(t_cmddat *cmd) // export (yeni env değişkeni tanımlama) komut
 	if (get_len_arr(cmd->full_cmd) == 1) // eğer argüman olarak sadece export komutu girildiyse
 		return (print_export(cmd)); // bütün ortam değişkenlerini ekrana yaz ve çık
 	if (!cmd->prompt->envp && get_len_arr(cmd->full_cmd) > 1
-		&& get_len_id(cmd->prompt, cmd->full_cmd[i], 0)) // environment boş ve ilk export komutu geçerliyse
+		&& get_len_id(cmd->prompt, cmd->full_cmd[i], 0)) // environment boş değil ve ilk export komutu geçerliyse
 		cmd->prompt->envp = add_str_to_arr(cmd->prompt, cmd->prompt->envp,
 				cmd->full_cmd[i++]); // yeni bir env değişkeni oluştur
 	while (cmd->full_cmd[i]) // eğer daha fazla argüman varsa bu argümanların sonuna kadar ilerle
@@ -134,7 +134,7 @@ int	get_len_id(t_prompt *prompt, char *str, int msg) // gönderilen env değerin
 	{
 		if (msg) // eğer hata mesajı yazılacaksa != 0 olarak gönderilir
 		{
-			tmp = grbg_strjoin(prompt, "`", str); // başına ' koyarak env değerini birleştir garbage yardımıyla hafızada yer açarak
+			tmp = grbg_strjoin(prompt, "'", str); // başına ' koyarak env değerini birleştir garbage yardımıyla hafızada yer açarak
 			tmp = add_to_str(prompt, &tmp, "'"); // env stringi sonuna da ' koy
 			print_err_msg_lng("export", "not a valid identifier", tmp); // hatanın kaynağı olan env stringi yazılmıştı onun devamına da hata bulunan komut ismi ve hata sebebini de yaz
 		}
